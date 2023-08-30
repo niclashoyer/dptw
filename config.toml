@@ -1,0 +1,29 @@
+
+[[feeds]]
+title = "Inland"
+url = "https://www.tagesschau.de/inland/index~rss2.xml"
+
+[[feeds]]
+title = "Schleswig-Holstein"
+url = "https://www.tagesschau.de/inland/regional/schleswigholstein/index~rss2.xml"
+
+[[feeds]]
+title = "Ausland"
+url = "https://www.tagesschau.de/ausland/index~rss2.xml"
+
+[[feeds]]
+title = "Wirtschaft"
+url = "https://www.tagesschau.de/wirtschaft/index~rss2.xml"
+
+[[feeds]]
+title = "Wissen"
+url = "https://www.tagesschau.de/wissen/index~rss2.xml"
+
+[[feeds]]
+title = "Investigativ"
+url = "https://www.tagesschau.de/investigativ/index~rss2.xml"
+
+[[feeds]]
+title = "Faktenfinder"
+url = "https://www.tagesschau.de/faktenfinder/index~rss2.xml"
+

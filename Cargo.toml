@@ -1,0 +1,20 @@
+[package]
+name = "dptw"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4.27", features = ["serde"] }
+clap = { version = "4.4.1", features = ["derive"] }
+ego-tree = "0.6.2"
+epub-builder = "0.7.4"
+feed-rs = "1.3.0"
+html5ever = "0.26.0"
+indoc = "2.0.3"
+reqwest = { version = "0.11.20", features = ["blocking"] }
+scraper = "0.17.1"
+serde = { version = "1.0.188", features = ["derive"] }
+tera = "1.19.0"
+toml = "0.7.6"
