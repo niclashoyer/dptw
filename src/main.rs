@@ -60,6 +60,29 @@ fn gen_tagesschau(
         )?
         .epub_version(epub_builder::EpubVersion::V20);
 
+    let mut context = Context::new();
+    context.insert("from", &from.format("%d.%m.%Y %H:%M").to_string());
+    context.insert("to", &to.format("%d.%m.%Y %H:%M").to_string());
+    let html = Tera::one_off(
+        indoc! { r#"
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+                        <head>
+                        </head>
+                        <body>
+                            <h1>Tagesschau</h1>
+                            <h2>{{ from }} bis {{ to }}</h2>
+                        </body>
+                        </html>
+                    "# },
+        &context,
+        true,
+    )?;
+
+    builder.add_content(
+        epub_builder::EpubContent::new("title.xhtml", html.as_bytes()).title("Tagesschau"),
+    )?;
+
     for (i, feed_config) in feeds.iter().enumerate() {
         let xml = reqwest::blocking::get(feed_config.url.clone())?.text()?;
         let feed = parser::parse(xml.as_bytes())?;

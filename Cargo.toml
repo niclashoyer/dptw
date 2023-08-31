@@ -13,7 +13,7 @@ epub-builder = "0.7.4"
 feed-rs = "1.3.0"
 html5ever = "0.26.0"
 indoc = "2.0.3"
-reqwest = { version = "0.11.20", features = ["blocking"] }
+reqwest = { version = "0.11.20", default-features = false, features = ["blocking", "rustls-tls"] }
 scraper = "0.17.1"
 serde = { version = "1.0.188", features = ["derive"] }
 tera = "1.19.0"
