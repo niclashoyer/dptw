@@ -3,6 +3,7 @@ use clap::Parser;
 use feed_rs::parser;
 use html5ever::interface::TreeSink;
 use indoc::indoc;
+use scraper::HtmlTreeSink;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -18,10 +19,10 @@ struct Args {
     #[arg(short, long, default_value = "config.toml")]
     config: String,
     /// parse entries that are at minimum "min" days old
-    #[arg(short, long, default_value = "1")]
+    #[arg(long, default_value = "1")]
     min: u64,
     /// parse entries that are at maximum "max" days old
-    #[arg(short, long, default_value = "1")]
+    #[arg(long, default_value = "1")]
     max: u64,
 }
 
@@ -112,27 +113,31 @@ fn gen_tagesschau(
         for (j, entry) in feed.entries.iter().enumerate() {
             let mut elements = vec![];
             let href = entry.links.first().unwrap().href.clone();
-            if let Some(p) = entry.published {
-                if p < from || p > to {
-                    continue;
-                }
+            if let Some(p) = entry.published
+                && (p < from || p > to)
+            {
+                continue;
             }
             println!("{}", href);
 
             let html = reqwest::blocking::get(&href)?.text()?;
-            let mut document = Html::parse_document(&html);
+            let document = Html::parse_document(&html);
+            let tree = HtmlTreeSink::new(document);
 
             // FIXME: don't remove .infoxbox and style it instead
-            let sel_remove = &Selector::parse(".copytext-element-wrapper, .meldungsfooter, .copytext__video, .external-embed__placeholder, .infobox")?;
+            let sel_remove = &Selector::parse(
+                ".copytext-element-wrapper, .meldungsfooter, .copytext__video, .external-embed__placeholder, .infobox",
+            )?;
             let nodes_to_remove: Vec<ego_tree::NodeId> =
-                document.select(sel_remove).map(|r| r.id()).collect();
+                tree.0.borrow().select(sel_remove).map(|r| r.id()).collect();
             for n in nodes_to_remove {
-                document.remove_from_parent(&n);
+                tree.remove_from_parent(&n);
             }
 
+            let doc = tree.0.borrow();
             let article = {
                 let sel_article = &Selector::parse("article")?;
-                let mut sel = document.select(sel_article);
+                let mut sel = doc.select(sel_article);
                 if let Some(article) = sel.next() {
                     article
                 } else {
@@ -150,7 +155,7 @@ fn gen_tagesschau(
                 elements.push(ArticleTag { tag, text });
             }
 
-            if elements.len() > 0 {
+            if !elements.is_empty() {
                 let mut context = Context::new();
                 context.insert("elements", &elements);
                 let html = Tera::one_off(
@@ -191,7 +196,6 @@ fn gen_tagesschau(
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-    dbg!(args.clone());
 
     let now: DateTime<Local> = Local::now();
     let from = now.checked_sub_days(chrono::Days::new(args.min)).unwrap();
